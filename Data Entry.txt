@@ -1,0 +1,126 @@
+#include <stdio.h>
+#include <string.h>
+
+struct Person {
+    char name[30];
+    int age;
+    float salary;
+    char profession[30];
+    char marital_status[20];
+};
+
+void printPerson(struct Person person) {
+printf("Name: %s\nAge: %d\nSalary: %.2f\nprofession: %s\nMarital Status: %s\n\n",
+person.name, person.age, person.salary, person.profession, person.marital_status);
+}
+
+int main() {
+struct Person person;
+int choice;
+FILE* file;
+
+while (1) {
+printf("Menu:\n");
+printf("1. Enter a new person\n");
+printf("2. Print all persons\n");
+printf("3. Edit data\n");
+printf("4. Exit\n");
+printf("Choice: ");
+scanf("%d", &choice);
+getchar();
+
+switch (choice) {
+case 1:
+printf("Enter new person:\n");
+printf("Name: ");
+scanf("%s", person.name);
+printf("\nAge: ");
+scanf("%d", &person.age);
+printf("\nSalary: ");
+scanf("%f", &person.salary);
+printf("\nprofession: ");
+scanf("%s", person.profession);
+printf("\nMarital Status: ");
+scanf("%s", person.marital_status);
+
+//Code here is to make the file if dosent exist or to open the file if exist,
+// and after that is to print the information we write and after we done 1 person save and close
+file = fopen("data.txt", "a");
+if (file != NULL) {
+fprintf(file, "Name: %s\nAge: %d\nSalary: %.2f\nprofession: %s\nMarital Status: %s\n\n",
+person.name, person.age, person.salary, person.profession, person.marital_status);
+fclose(file);
+printf("Data successfully recorded.\n");
+}
+else {
+printf("Error opening the file.\n");
+}
+break;
+
+case 2:
+// Code for printing all persons (unchanged)
+break;
+
+case 3:
+// Code for editing data we make char array to search the names we want the edit informations so here search the file for the correct name
+printf("\nEnter the name of the person to edit: ");
+char searchName[30];
+scanf("%s", searchName);
+//here open the file for read and write thats why we add r+
+file = fopen("data.txt", "r+");
+if (file != NULL) {
+int found = 0;
+long offset = 0;
+while (fscanf(file, "\nName: %s\nAge: %d\nSalary: %f\nprofession: %s\nMarital Status: %s\n\n",
+person.name, &person.age, &person.salary, person.profession, person.marital_status) != EOF) {
+if (strcmp(person.name, searchName) == 0) {
+printf("\nEnter new data:\n");
+printf("\nName: ");
+scanf("%s", person.name);
+printf("\nAge: ");
+scanf("%d", &person.age);
+printf("\nSalary: ");
+scanf("%f", &person.salary);
+printf("\nprofession: ");
+scanf("%s", person.profession);
+printf("\nMarital Status: ");
+scanf("%s", person.marital_status);
+
+// Calculate the offset for fseek
+offset = ftell(file) - strlen(person.name) - 29;
+// Move the file pointer to the beginning of the current record
+fseek(file, offset, SEEK_SET);
+fprintf(file, "\nName: %s\nAge: %d\nSalary: %.2f\nprofession: %s\nMarital Status: %s\n\n",
+person.name, person.age, person.salary, person.profession, person.marital_status);
+
+found = 1;
+break;
+}
+}
+
+fclose(file);
+
+if (found) {
+printf("Data successfully edited.\n");
+}
+else {
+printf("Person not found.\n");
+}
+}
+else {
+printf("Error opening the file.\n");
+}
+break;
+
+case 4:
+printf("Exiting program.\n");
+return 0;  // Exit the program
+break;
+
+default:
+printf("Invalid choice.\n");
+}
+}
+
+return 0;
+}
