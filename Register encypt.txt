@@ -1,0 +1,111 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+// Structure for the user
+struct User {
+    char username[50];
+    char password[50];
+    char email[50];
+};
+
+// Function for encrypting a string
+void encryptString(char *str) {
+    // The code for encryption remains the same
+    for (int i = 0; i < strlen(str); i++) {
+        str[i] = str[i] + 1;
+    }
+}
+
+// Function for encrypting the user data
+void encryptUserData(struct User *user) {
+    encryptString(user->username);
+    encryptString(user->password);
+    encryptString(user->email);
+}
+
+int main() {
+    struct User newUser;
+
+    printf("Enter the username: ");
+    scanf("%s", newUser.username);
+
+    printf("Enter the password: ");
+    scanf("%s", newUser.password);
+
+    printf("Enter the email: ");
+    scanf("%s", newUser.email);
+
+    // Encrypt the user data before storing
+    encryptUserData(&newUser);
+
+    // Write to the file
+    FILE *file = fopen("users.txt", "a");
+    if (file == NULL) {
+        perror("Error opening the file");
+        exit(EXIT_FAILURE);
+    }
+
+    fprintf(file, "%s %s %s\n", newUser.username, newUser.password, newUser.email);
+
+    fclose(file);
+
+    char loginUsername[50];
+    char loginPassword[50];
+
+    printf("Enter the username for login: ");
+    scanf("%s", loginUsername);
+
+    printf("Enter the password for login: ");
+    scanf("%s", loginPassword);
+
+    // Check the login credentials
+    file = fopen("users.txt", "r");
+    if (file == NULL) {
+        perror("Error opening the file");
+        exit(EXIT_FAILURE);
+    }
+
+    struct User user;
+    bool loginSuccess = false;
+
+    while (fscanf(file, "%s %s %s", user.username, user.password, user.email) != EOF) {
+        // Decrypt the stored data for comparison
+        char decryptedUsername[50];
+        char decryptedPassword[50];
+        char decryptedEmail[50];
+
+        strcpy(decryptedUsername, user.username);
+        strcpy(decryptedPassword, user.password);
+        strcpy(decryptedEmail, user.email);
+
+        for (int i = 0; i < strlen(decryptedUsername); i++) {
+            decryptedUsername[i] = decryptedUsername[i] - 1;
+        }
+
+        for (int i = 0; i < strlen(decryptedPassword); i++) {
+            decryptedPassword[i] = decryptedPassword[i] - 1;
+        }
+
+        for (int i = 0; i < strlen(decryptedEmail); i++) {
+            decryptedEmail[i] = decryptedEmail[i] - 1;
+        }
+
+        // Check for login
+        if (strcmp(decryptedUsername, loginUsername) == 0 && strcmp(decryptedPassword, loginPassword) == 0) {
+            loginSuccess = true;
+            break;
+        }
+    }
+
+    fclose(file);
+
+    if (loginSuccess) {
+        printf("Successful login!\n");
+    } else {
+        printf("Login failed. Check your credentials.\n");
+    }
+
+    return 0;
+}
